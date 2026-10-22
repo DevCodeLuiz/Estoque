@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relatórios | Estoque</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #dce5f2;
+      background: #090f1b;
+      color-scheme: dark;
+    }
+
+    body { margin: 0; }
+    button, input { font: inherit; }
+
+    header {
+      padding: 22px 28px;
+      border-bottom: 1px solid #253249;
+      background: #0d1523;
+    }
+
+    .topo {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .marca { font-size: 23px; font-weight: 700; }
+    .marca span { color: #54edc0; }
+
+    a {
+      color: #a0b5cc;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    a:hover { color: #54edc0; }
+
+    main {
+      max-width: 1156px;
+      margin: auto;
+      padding: 36px 28px;
+    }
+
+    h1 { margin: 0; font-size: 31px; letter-spacing: -1px; }
+    h2 { margin: 0; font-size: 17px; }
+
+    p {
+      color: #91a1b8;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .sobretitulo {
+      color: #73dcb9;
+      font-size: 10px;
+      letter-spacing: 1.6px;
+      font-weight: 700;
+    }
+
+    .painel, .cartao {
+      background: #111b2b;
+      border: 1px solid #253249;
+      border-radius: 15px;
+    }
+
+    .painel { margin-top: 24px; overflow: hidden; }
+    .padding { padding: 24px; }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 18px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #bbcadf;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #304059;
+      border-radius: 10px;
+      background: #0c1422;
+      color: #e8eff9;
+    }
+
+    button {
+      padding: 13px 18px;
+      border: 0;
+      border-radius: 10px;
+      background: #54edc0;
+      color: #08291f;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    button:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+      outline: 2px solid #54edc0;
+      outline-offset: 3px;
+    }
+
+    .resumos {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .cartao { padding: 22px; }
+    .cartao span { color: #91a1b8; font-size: 12px; }
+
+    .cartao strong {
+      display: block;
+      margin-top: 12px;
+      font-size: 32px;
+      color: #f1f6fd;
+    }
+
+    .cabecalho {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 24px;
+      border-bottom: 1px solid #253249;
+    }
+
+    .secundario {
+      background: #19283c;
+      border: 1px solid #304059;
+      color: #bfcee2;
+    }
+
+    .rolagem { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+
+    th {
+      background: #0f1929;
+      color: #8196b0;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    th, td {
+      padding: 16px 22px;
+      border-bottom: 1px solid #253249;
+    }
+
+    td { font-size: 13px; }
+    tr:last-child td { border-bottom: 0; }
+    .entrada { color: #82e7bd; }
+    .saida { color: #f3acc0; }
+    .vazio { text-align: center; padding: 30px; color: #91a1b8; }
+    #mensagem.erro { color: #ffadc2; }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 650px) {
+      main { padding: 26px 16px; }
+      form, .resumos { grid-template-columns: 1fr; }
+      .padding, .cabecalho { padding: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="topo">
+      <div class="marca"><span>▣</span> Estoque</div>
+      <a href="/#visao">← Voltar ao painel</a>
+    </div>
+  </header>
+
+  <main>
+    <p class="sobretitulo">CONSULTAS E EXPORTAÇÃO</p>
+    <h1>Relatórios de estoque.</h1>
+    <p>Consulte entradas e saídas por período e exporte os dados.</p>
+
+    <section class="painel padding">
+      <form id="form-relatorio">
+        <div>
+          <label for="inicio">Data inicial</label>
+          <input id="inicio" type="date" required>
+        </div>
+
+        <div>
+          <label for="fim">Data final</label>
+          <input id="fim" type="date" required>
+        </div>
+
+        <button id="consultar" type="submit">Gerar relatório</button>
+      </form>
+
+      <p id="mensagem" role="status">
+        Selecione o período. As datas seguem o fuso do seu computador.
+      </p>
+    </section>
+
+    <div id="resultado" hidden>
+      <p id="periodo"></p>
+
+      <section class="resumos" aria-label="Resumo do período">
+        <div class="cartao">
+          <span>Unidades que entraram</span>
+          <strong id="total-entradas">0</strong>
+        </div>
+
+        <div class="cartao">
+          <span>Unidades que saíram</span>
+          <strong id="total-saidas">0</strong>
+        </div>
+
+        <div class="cartao">
+          <span>Movimentações registradas</span>
+          <strong id="total-movimentacoes">0</strong>
+        </div>
+      </section>
+
+      <section class="painel">
+        <div class="cabecalho">
+          <h2>Resumo por produto</h2>
+          <button id="exportar" class="secundario" type="button" disabled>
+            Baixar CSV detalhado
+          </button>
+        </div>
+
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Produto</th>
+                <th scope="col">Entradas</th>
+                <th scope="col">Saídas</th>
+                <th scope="col">Variação no período</th>
+              </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+          </table>
+        </div>
+
+        <div class="padding">
+          <p>
+            A variação é a diferença entre entradas e saídas do período,
+            não o estoque atual. Inclui entradas iniciais registradas no
+            cadastro e movimentações de produtos arquivados.
+          </p>
+          <p>
+            O CSV contém cada movimentação, com data, usuário, motivo
+            e saldo após a operação.
+          </p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+    const numero = new Intl.NumberFormat("pt-BR");
+
+    let relatorio = null;
+    let periodoConsultado = null;
+    let consultando = false;
+
+    function dataLocal(data) {
+      return [
+        data.getFullYear(),
+        String(data.getMonth() + 1).padStart(2, "0"),
+        String(data.getDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    const hoje = new Date();
+    el("fim").value = dataLocal(hoje);
+    el("inicio").value = dataLocal(
+      new Date(hoje.getFullYear(), hoje.getMonth(), 1)
+    );
+
+    function celula(linha, texto) {
+      const td = document.createElement("td");
+      td.textContent = texto;
+      linha.appendChild(td);
+      return td;
+    }
+
+    function limparResultado() {
+      relatorio = null;
+      periodoConsultado = null;
+      el("resultado").hidden = true;
+      el("exportar").disabled = true;
+    }
+
+    for (const id of ["inicio", "fim"]) {
+      el(id).addEventListener("input", () => {
+        limparResultado();
+        el("mensagem").classList.remove("erro");
+        el("mensagem").textContent =
+          "Período alterado. Clique em Gerar relatório.";
+      });
+    }
+
+    el("form-relatorio").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (consultando) return;
+
+      const inicioTexto = el("inicio").value;
+      const fimTexto = el("fim").value;
+
+      if (!inicioTexto || !fimTexto || inicioTexto > fimTexto) {
+        limparResultado();
+        el("mensagem").classList.add("erro");
+        el("mensagem").textContent =
+          "A data inicial deve ser igual ou anterior à data final.";
+        return;
+      }
+
+      const inicio = new Date(`${inicioTexto}T00:00:00`);
+      const fim = new Date(`${fimTexto}T00:00:00`);
+      fim.setDate(fim.getDate() + 1);
+
+      const parametros = new URLSearchParams({
+        inicio: inicio.toISOString(),
+        fim: fim.toISOString()
+      });
+
+      consultando = true;
+      limparResultado();
+      el("consultar").disabled = true;
+      el("inicio").disabled = true;
+      el("fim").disabled = true;
+      el("mensagem").classList.remove("erro");
+      el("mensagem").textContent = "Consultando movimentações...";
+
+      try {
+        const resposta = await fetch(`/api/relatorios?${parametros}`);
+
+        if (resposta.status === 401) {
+          window.location.replace("/login");
+          return;
+        }
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+          throw new Error(dados.mensagem || "Não foi possível consultar.");
+        }
+
+        relatorio = dados;
+        periodoConsultado = {
+          inicio: inicioTexto,
+          fim: fimTexto
+        };
+
+        el("total-entradas").textContent =
+          numero.format(dados.totalEntradas);
+        el("total-saidas").textContent =
+          numero.format(dados.totalSaidas);
+        el("total-movimentacoes").textContent =
+          numero.format(dados.totalMovimentacoes);
+
+        el("periodo").textContent =
+          `Período: ${inicio.toLocaleDateString("pt-BR")} a ` +
+          `${new Date(`${fimTexto}T00:00:00`).toLocaleDateString("pt-BR")}.`;
+
+        const tabela = el("lista");
+        tabela.replaceChildren();
+
+        for (const produto of dados.produtos) {
+          const linha = document.createElement("tr");
+          celula(linha, `${produto.nome} (#${produto.produtoId})`);
+          celula(linha, numero.format(produto.entradas)).className = "entrada";
+          celula(linha, numero.format(produto.saidas)).className = "saida";
+          celula(linha, numero.format(produto.variacao));
+          tabela.appendChild(linha);
+        }
+
+        if (dados.produtos.length === 0) {
+          const linha = document.createElement("tr");
+          const vazio = celula(linha, "Nenhuma movimentação nesse período.");
+          vazio.colSpan = 4;
+          vazio.className = "vazio";
+          tabela.appendChild(linha);
+        }
+
+        el("resultado").hidden = false;
+        el("exportar").disabled = dados.movimentacoes.length === 0;
+        el("mensagem").textContent = "Relatório gerado.";
+      } catch (erro) {
+        limparResultado();
+        el("mensagem").classList.add("erro");
+        el("mensagem").textContent = erro.message;
+      } finally {
+        consultando = false;
+        el("consultar").disabled = false;
+        el("inicio").disabled = false;
+        el("fim").disabled = false;
+      }
+    });
+
+    function campoCSV(valor) {
+      let texto = String(valor ?? "");
+
+      if (/^[\s\u0000-\u0020]*[=+\-@]/.test(texto)) {
+        texto = "'" + texto;
+      }
+
+      return `"${texto.replace(/"/g, '""')}"`;
+    }
+
+    el("exportar").addEventListener("click", () => {
+      if (!relatorio || !periodoConsultado) return;
+
+      const linhas = [[
+        "ID",
+        "Data e hora local",
+        "Usuário",
+        "Código do produto",
+        "Produto na movimentação",
+        "Tipo",
+        "Quantidade",
+        "Saldo após",
+        "Motivo"
+      ]];
+
+      for (const item of relatorio.movimentacoes) {
+        linhas.push([
+          item.id,
+          new Date(item.data).toLocaleString("pt-BR"),
+          item.usuario,
+          item.produtoId,
+          item.produto,
+          item.tipo === "entrada" ? "Entrada" : "Saída",
+          item.quantidade,
+          item.saldoApos,
+          item.motivo
+        ]);
+      }
+
+      const csv = "\uFEFF" + linhas.map(
+        (linha) => linha.map(campoCSV).join(";")
+      ).join("\r\n");
+
+      const url = URL.createObjectURL(
+        new Blob([csv], { type: "text/csv;charset=utf-8" })
+      );
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download =
+        `movimentacoes_${periodoConsultado.inicio}_${periodoConsultado.fim}.csv`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  </script>
+</body>
+</html>

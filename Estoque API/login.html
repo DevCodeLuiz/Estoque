@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar | Estoque</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #e9f0fa;
+      background: #080e19;
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+      overflow-x: hidden;
+      background: #080e19;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .fundo {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grade-fundo {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(#ffffff05 1px, transparent 1px),
+        linear-gradient(90deg, #ffffff05 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: linear-gradient(black, transparent);
+    }
+
+    .luz {
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: .2;
+      animation: flutuar 15s ease-in-out infinite alternate;
+    }
+
+    .luz-verde {
+      background: #22d3a7;
+      left: -160px;
+      top: -180px;
+    }
+
+    .luz-azul {
+      background: #4879ff;
+      right: -170px;
+      bottom: -190px;
+      animation-delay: -7s;
+    }
+
+    .estrutura {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      width: min(1080px, 100%);
+      border: 1px solid #ffffff14;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #101827;
+      box-shadow: 0 35px 110px #00000066;
+      animation: aparecer .7s ease both;
+    }
+
+    .apresentacao {
+      position: relative;
+      padding: 48px;
+      background:
+        radial-gradient(ellipse at bottom left, #13554766, transparent 75%),
+        #101c29;
+      border-right: 1px solid #ffffff0d;
+      overflow: hidden;
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 21px;
+      letter-spacing: -.6px;
+    }
+
+    .simbolo {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      background: #54edc0;
+      color: #08271e;
+      border-radius: 13px;
+    }
+
+    svg {
+      display: block;
+    }
+
+    .etiqueta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 58px;
+      padding: 7px 12px;
+      border: 1px solid #54edc035;
+      border-radius: 30px;
+      background: #54edc00a;
+      color: #8af5d2;
+      font-size: 12px;
+    }
+
+    .ponto {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #54edc0;
+      animation: pulsar 2s ease-in-out infinite;
+    }
+
+    .apresentacao h1 {
+      margin: 22px 0 18px;
+      font-size: clamp(32px, 4vw, 46px);
+      line-height: 1.12;
+      letter-spacing: -2px;
+      font-weight: 650;
+    }
+
+    .destaque {
+      color: #54edc0;
+    }
+
+    .texto-apresentacao {
+      color: #9aafbf;
+      max-width: 360px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .mini-painel {
+      margin-top: 38px;
+      border: 1px solid #ffffff14;
+      border-radius: 16px;
+      padding: 20px;
+      background: #0a1421b3;
+      animation: cartaoFlutuante 6s ease-in-out infinite;
+    }
+
+    .mini-topo {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #b4c2d4;
+      font-size: 12px;
+    }
+
+    .mini-selo {
+      color: #54edc0;
+      font-size: 11px;
+    }
+
+    .barras {
+      height: 100px;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .barra {
+      flex: 1;
+      height: var(--altura);
+      border-radius: 5px 5px 2px 2px;
+      background: linear-gradient(#54edc0, #1b6358);
+      transform-origin: bottom;
+      animation: crescer .9s ease both;
+      animation-delay: var(--atraso);
+    }
+
+    .mini-legenda {
+      display: flex;
+      justify-content: space-between;
+      color: #71879b;
+      font-size: 10px;
+      margin-top: 12px;
+    }
+
+    .nota {
+      margin: 20px 0 0;
+      font-size: 11px;
+      color: #71879b;
+    }
+
+    .acesso {
+      padding: 58px 48px 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #101827;
+    }
+
+    .acesso h2 {
+      margin: 0 0 12px;
+      font-size: 31px;
+      letter-spacing: -1px;
+    }
+
+    .introducao {
+      margin: 0 0 30px;
+      color: #94a3b8;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      color: #d2dbea;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .campo {
+      margin-bottom: 22px;
+    }
+
+    .entrada {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid #2c384b;
+      border-radius: 11px;
+      background: #0b1220;
+      padding: 0 14px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .entrada:focus-within {
+      border-color: #54edc0;
+      box-shadow: 0 0 0 3px #54edc012;
+    }
+
+    .icone {
+      color: #7b8da7;
+      flex-shrink: 0;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      color: #f1f5f9;
+      padding: 15px 0;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #65768d;
+    }
+
+    .mostrar-senha {
+      border: 0;
+      background: transparent;
+      color: #9bb1c6;
+      padding: 8px 0 8px 5px;
+      cursor: pointer;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .mostrar-senha:hover {
+      color: #54edc0;
+    }
+
+    .botao-entrar {
+      width: 100%;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      border: 0;
+      border-radius: 11px;
+      background: #54edc0;
+      color: #09291f;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s, background .2s, box-shadow .2s;
+    }
+
+    .botao-entrar:hover:not(:disabled) {
+      background: #7af5d1;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px #54edc025;
+    }
+
+    .botao-entrar:disabled {
+      opacity: .7;
+      cursor: wait;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #b0ffe6;
+      outline-offset: 4px;
+    }
+
+    .carregando {
+      width: 17px;
+      height: 17px;
+      border: 2px solid #09291f44;
+      border-top-color: #09291f;
+      border-radius: 50%;
+      animation: girar .7s linear infinite;
+    }
+
+    #mensagem {
+      min-height: 24px;
+      margin: 15px 0 0;
+      color: #fda4af;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    #mensagem.sucesso {
+      color: #8af5d2;
+    }
+
+    .rodape {
+      margin-top: 32px;
+      border-top: 1px solid #ffffff0d;
+      padding-top: 22px;
+      color: #73849c;
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    .rodape strong {
+      color: #aabbd1;
+      font-weight: 500;
+    }
+
+    .erro-animado {
+      animation: balancar .3s ease;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @keyframes flutuar {
+      from { transform: translate(0, 0); }
+      to { transform: translate(80px, 65px); }
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulsar {
+      0%, 100% { box-shadow: 0 0 0 0 #54edc030; }
+      50% { box-shadow: 0 0 0 5px #54edc000; }
+    }
+
+    @keyframes cartaoFlutuante {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes crescer {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+
+    @keyframes girar {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes balancar {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @media (max-width: 800px) {
+      body { padding: 20px; }
+
+      .estrutura {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+      }
+
+      .apresentacao {
+        padding: 26px;
+        border-right: 0;
+        border-bottom: 1px solid #ffffff0d;
+      }
+
+      .etiqueta,
+      .apresentacao h1,
+      .texto-apresentacao,
+      .mini-painel,
+      .nota {
+        display: none;
+      }
+
+      .acesso {
+        padding: 32px 26px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fundo" aria-hidden="true">
+    <div class="grade-fundo"></div>
+    <div class="luz luz-verde"></div>
+    <div class="luz luz-azul"></div>
+  </div>
+
+  <main class="estrutura">
+    <section class="apresentacao" aria-label="Apresentação">
+      <div class="marca">
+        <span class="simbolo" aria-hidden="true">
+          <svg
+            width="25"
+            height="25"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          >
+            <path d="m12 3 9 5-9 5-9-5 9-5Z"></path>
+            <path d="M3 8v9l9 5 9-5V8M12 13v9"></path>
+            <path d="m7.5 5.5 9 5"></path>
+          </svg>
+        </span>
+        Estoque
+      </div>
+
+      <div class="etiqueta">
+        <span class="ponto" aria-hidden="true"></span>
+        Menos planilhas. Mais controle.
+      </div>
+
+      <h1>
+        Cada produto.<br>
+        Cada movimento.<br>
+        <span class="destaque">Tudo no lugar.</span>
+      </h1>
+
+      <p class="texto-apresentacao">
+        Organize seu estoque, registre entradas e saídas
+        e acompanhe o histórico em um só painel.
+      </p>
+
+      <div class="mini-painel" aria-hidden="true">
+        <div class="mini-topo">
+          <span>Movimentações do estoque</span>
+          <span class="mini-selo">Ilustração</span>
+        </div>
+
+        <div class="barras">
+          <div class="barra" style="--altura:35%; --atraso:.1s"></div>
+          <div class="barra" style="--altura:58%; --atraso:.2s"></div>
+          <div class="barra" style="--altura:45%; --atraso:.3s"></div>
+          <div class="barra" style="--altura:78%; --atraso:.4s"></div>
+          <div class="barra" style="--altura:65%; --atraso:.5s"></div>
+          <div class="barra" style="--altura:90%; --atraso:.6s"></div>
+          <div class="barra" style="--altura:72%; --atraso:.7s"></div>
+        </div>
+
+        <div class="mini-legenda">
+          <span>SEG</span>
+          <span>TER</span>
+          <span>QUA</span>
+          <span>QUI</span>
+          <span>SEX</span>
+          <span>SÁB</span>
+          <span>DOM</span>
+        </div>
+      </div>
+
+      <p class="nota">
+        Visual ilustrativo, sem dados reais do estoque.
+      </p>
+    </section>
+
+    <section class="acesso" aria-labelledby="titulo-login">
+      <h2 id="titulo-login">Seu estoque espera por você.</h2>
+
+      <p class="introducao">
+        Bem-vindo de volta! Entre na sua conta para continuar.
+      </p>
+
+      <form id="form-login">
+        <div class="campo">
+          <label for="usuario">Usuário</label>
+
+          <div class="entrada">
+            <svg
+              class="icone"
+              width="19"
+              height="19"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M4 21v-2a8 8 0 0 1 16 0v2"></path>
+            </svg>
+
+            <input
+              id="usuario"
+              name="usuario"
+              autocomplete="username"
+              placeholder="Digite seu usuário"
+              maxlength="100"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="senha">Senha</label>
+
+          <div class="entrada">
+            <svg
+              class="icone"
+              width="19"
+              height="19"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              aria-hidden="true"
+            >
+              <rect x="4" y="10" width="16" height="11" rx="2"></rect>
+              <path d="M8 10V6a4 4 0 0 1 8 0v4"></path>
+              <path d="M12 14v3"></path>
+            </svg>
+
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Digite sua senha"
+              maxlength="200"
+              required
+            >
+
+            <button
+              id="mostrar-senha"
+              class="mostrar-senha"
+              type="button"
+              aria-label="Mostrar senha"
+              aria-pressed="false"
+              aria-controls="senha"
+            >
+              Mostrar
+            </button>
+          </div>
+        </div>
+
+        <button id="botao" class="botao-entrar" type="submit">
+          <span id="indicador" class="carregando" hidden aria-hidden="true"></span>
+          <span id="texto-botao">Acessar meu painel</span>
+          <span id="seta" aria-hidden="true">→</span>
+        </button>
+
+        <p id="mensagem" role="status" aria-live="polite"></p>
+      </form>
+
+      <footer class="rodape">
+        Projeto de demonstração<br>
+        Desenvolvido por <strong>Luiz Davi</strong>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    const formulario = document.getElementById("form-login");
+    const mensagem = document.getElementById("mensagem");
+    const botao = document.getElementById("botao");
+    const senha = document.getElementById("senha");
+    const mostrarSenha = document.getElementById("mostrar-senha");
+    const indicador = document.getElementById("indicador");
+    const textoBotao = document.getElementById("texto-botao");
+    const seta = document.getElementById("seta");
+
+    let entrando = false;
+
+    mostrarSenha.addEventListener("click", () => {
+      const mostrar = senha.type === "password";
+
+      senha.type = mostrar ? "text" : "password";
+      mostrarSenha.textContent = mostrar ? "Ocultar" : "Mostrar";
+
+      mostrarSenha.setAttribute(
+        "aria-label",
+        mostrar ? "Ocultar senha" : "Mostrar senha"
+      );
+
+      mostrarSenha.setAttribute("aria-pressed", String(mostrar));
+    });
+
+    function mostrarErro(texto) {
+      mensagem.classList.remove("sucesso");
+      mensagem.textContent = texto;
+
+      formulario.classList.remove("erro-animado");
+      void formulario.offsetWidth;
+      formulario.classList.add("erro-animado");
+    }
+
+    formulario.addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+
+      if (entrando) return;
+
+      entrando = true;
+      formulario.setAttribute("aria-busy", "true");
+      mensagem.textContent = "";
+      mensagem.classList.remove("sucesso");
+      botao.disabled = true;
+      indicador.hidden = false;
+      seta.hidden = true;
+      textoBotao.textContent = "Conferindo seu acesso...";
+
+      let autenticado = false;
+
+      try {
+        const resposta = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            usuario: document.getElementById("usuario").value.trim(),
+            senha: senha.value
+          })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+          mostrarErro(
+            dados.mensagem || "Não foi possível entrar."
+          );
+          return;
+        }
+
+        autenticado = true;
+        mensagem.classList.add("sucesso");
+        mensagem.textContent = "Tudo certo! Abrindo seu painel.";
+        textoBotao.textContent = "Bem-vindo!";
+        window.location.replace("/");
+      } catch {
+        mostrarErro(
+          "Não foi possível conectar. Confira se o servidor está rodando."
+        );
+      } finally {
+        if (!autenticado) {
+          entrando = false;
+          formulario.setAttribute("aria-busy", "false");
+          botao.disabled = false;
+          indicador.hidden = true;
+          seta.hidden = false;
+          textoBotao.textContent = "Acessar meu painel";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

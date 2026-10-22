@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha conta | Estoque</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #dce5f2;
+      background: #090f1b;
+      color-scheme: dark;
+    }
+
+    body { margin: 0; }
+    button, input { font: inherit; }
+
+    header {
+      padding: 22px 24px;
+      background: #0d1523;
+      border-bottom: 1px solid #253249;
+    }
+
+    .topo {
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .marca { font-size: 23px; font-weight: 700; }
+    .marca span { color: #54edc0; }
+
+    a {
+      color: #a0b5cc;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    a:hover { color: #54edc0; }
+
+    main {
+      max-width: 1050px;
+      margin: auto;
+      padding: 36px 24px;
+    }
+
+    .sobretitulo {
+      color: #73dcb9;
+      font-size: 10px;
+      letter-spacing: 1.6px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 31px;
+      letter-spacing: -1px;
+    }
+
+    h2 { margin: 0; font-size: 18px; }
+
+    p {
+      color: #91a1b8;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .grade {
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 24px;
+      margin-top: 28px;
+      align-items: start;
+    }
+
+    .painel {
+      padding: 28px;
+      border: 1px solid #253249;
+      border-radius: 16px;
+      background: #111b2b;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 22px;
+      border: 1px solid #54edc033;
+      border-radius: 18px;
+      background: #54edc00d;
+      color: #7ef2cc;
+      font-size: 23px;
+      font-weight: 600;
+    }
+
+    .etiqueta {
+      display: inline-block;
+      padding: 6px 10px;
+      margin-top: 8px;
+      border-radius: 7px;
+      background: #1b2b40;
+      color: #a9bed8;
+      font-size: 11px;
+    }
+
+    label {
+      display: block;
+      margin: 22px 0 9px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #bbcadf;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #304059;
+      border-radius: 10px;
+      background: #0c1422;
+      color: #e8eff9;
+    }
+
+    input::placeholder { color: #667a95; }
+
+    button {
+      padding: 13px 18px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: #54edc0;
+      color: #08291f;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: .5; cursor: wait; }
+
+    button:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+      outline: 2px solid #54edc0;
+      outline-offset: 3px;
+    }
+
+    .secundario {
+      background: #19283c;
+      border-color: #304059;
+      color: #bfcee2;
+    }
+
+    .acoes {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    #sair { width: 100%; margin-top: 22px; }
+    .ajuda { font-size: 11px; }
+
+    #mensagem {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #6b3145;
+      background: #351d29;
+      color: #ffb7c6;
+    }
+
+    #mensagem.sucesso {
+      background: #10352b;
+      border-color: #276453;
+      color: #9bf1d4;
+    }
+
+    #voltar-login {
+      display: inline-block;
+      margin-top: 16px;
+      color: #7ef2cc;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 700px) {
+      main { padding: 28px 16px; }
+      .grade { grid-template-columns: 1fr; }
+      .painel { padding: 24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="topo">
+      <div class="marca"><span>▣</span> Estoque</div>
+      <a href="/#visao">← Voltar ao painel</a>
+    </div>
+  </header>
+
+  <main>
+    <p class="sobretitulo">CONFIGURAÇÕES</p>
+    <h1>Sua conta.</h1>
+    <p>Consulte seu usuário e atualize a senha de acesso.</p>
+
+    <div class="grade">
+      <section class="painel" aria-labelledby="nome-usuario">
+        <div id="avatar" class="avatar" aria-hidden="true">…</div>
+
+        <h2 id="nome-usuario">Carregando...</h2>
+        <p id="estado-conta">Consultando a conta conectada.</p>
+
+        <span class="etiqueta">Conta do sistema de demonstração</span>
+
+        <button id="sair" class="secundario" type="button">
+          Sair da conta
+        </button>
+      </section>
+
+      <section class="painel">
+        <h2>Alterar senha</h2>
+        <p>Confirme sua senha atual antes de cadastrar uma nova.</p>
+
+        <form id="form-senha">
+          <label for="senha-atual">Senha atual</label>
+          <input
+            id="senha-atual"
+            type="password"
+            autocomplete="current-password"
+            maxlength="200"
+            required
+          >
+
+          <label for="nova-senha">Nova senha</label>
+          <input
+            id="nova-senha"
+            type="password"
+            autocomplete="new-password"
+            minlength="12"
+            maxlength="72"
+            placeholder="Pelo menos 12 caracteres"
+            required
+          >
+
+          <p class="ajuda">
+            Use uma senha longa e exclusiva. O limite é de 72 bytes;
+            acentos e emojis podem ocupar mais de um byte.
+          </p>
+
+          <label for="confirmar-senha">Confirmar nova senha</label>
+          <input
+            id="confirmar-senha"
+            type="password"
+            autocomplete="new-password"
+            minlength="12"
+            maxlength="72"
+            required
+          >
+
+          <div class="acoes">
+            <button id="salvar" type="submit" disabled>
+              Salvar nova senha
+            </button>
+          </div>
+        </form>
+
+        <p id="mensagem" role="status" hidden></p>
+
+        <a id="voltar-login" href="/login" hidden>
+          Entrar com a nova senha →
+        </a>
+
+        <p class="ajuda">
+          Após a alteração, o acesso deste navegador será encerrado.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+    let salvando = false;
+
+    function avisar(texto, sucesso = false) {
+      el("mensagem").hidden = false;
+      el("mensagem").textContent = texto;
+      el("mensagem").classList.toggle("sucesso", sucesso);
+    }
+
+    async function api(endereco, opcoes = {}) {
+      const resposta = await fetch(endereco, opcoes);
+
+      if (resposta.status === 401) {
+        window.location.replace("/login");
+        throw new Error("Entre novamente.");
+      }
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(dados.mensagem || "Não foi possível concluir.");
+      }
+
+      return dados;
+    }
+
+    async function carregarConta() {
+      try {
+        const conta = await api("/api/conta");
+
+        el("nome-usuario").textContent = conta.usuario;
+        el("estado-conta").textContent =
+          "Essa é a conta utilizada nas suas movimentações.";
+
+        const iniciais = conta.usuario
+          .trim()
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((parte) => parte.slice(0, 1))
+          .join("")
+          .toUpperCase();
+
+        el("avatar").textContent = iniciais;
+        el("salvar").disabled = false;
+      } catch (erro) {
+        el("estado-conta").textContent = erro.message;
+        el("nome-usuario").textContent = "Conta indisponível";
+      }
+    }
+
+    el("form-senha").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (salvando) return;
+
+      const novaSenha = el("nova-senha").value;
+      const confirmarSenha = el("confirmar-senha").value;
+
+      if (novaSenha !== confirmarSenha) {
+        avisar("A confirmação não corresponde à nova senha.");
+        return;
+      }
+
+      if (new TextEncoder().encode(novaSenha).length > 72) {
+        avisar("A nova senha ultrapassa o limite de 72 bytes.");
+        return;
+      }
+
+      salvando = true;
+      el("salvar").disabled = true;
+      el("salvar").textContent = "Salvando...";
+      el("mensagem").hidden = true;
+
+      let sucesso = false;
+
+      try {
+        const dados = await api("/api/conta/senha", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            senhaAtual: el("senha-atual").value,
+            novaSenha,
+            confirmarSenha
+          })
+        });
+
+        sucesso = true;
+        el("form-senha").reset();
+        el("form-senha").hidden = true;
+        el("sair").hidden = true;
+        el("voltar-login").hidden = false;
+
+        avisar(dados.mensagem, true);
+      } catch (erro) {
+        avisar(erro.message);
+      } finally {
+        salvando = false;
+
+        if (!sucesso) {
+          el("salvar").disabled = false;
+          el("salvar").textContent = "Salvar nova senha";
+        }
+      }
+    });
+
+    el("sair").addEventListener("click", async () => {
+      el("sair").disabled = true;
+
+      try {
+        await api("/api/logout", {
+          method: "POST"
+        });
+
+        window.location.replace("/login");
+      } catch (erro) {
+        avisar(erro.message);
+        el("sair").disabled = false;
+      }
+    });
+
+    carregarConta();
+  </script>
+</body>
+</html>

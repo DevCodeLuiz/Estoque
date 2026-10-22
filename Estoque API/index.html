@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estoque | Painel</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #dce5f2;
+      background: #090f1b;
+      color-scheme: dark;
+      --verde: #54edc0;
+      --borda: #253249;
+      --painel: #111b2b;
+    }
+
+    body { margin: 0; }
+    button, input, select { font: inherit; }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--verde);
+      color: #08291f;
+      padding: 11px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, transform .18s;
+    }
+
+    button:hover:not(:disabled) { filter: brightness(1.08); }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:disabled { opacity: .5; cursor: wait; }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--verde);
+      outline-offset: 3px;
+    }
+
+    input, select {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #304059;
+      border-radius: 10px;
+      background: #0c1422;
+      color: #e8eff9;
+      padding: 12px 14px;
+    }
+
+    input::placeholder { color: #667a95; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #bbcadf;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 18px 20px;
+      border-right: 1px solid var(--borda);
+      background: #0d1523;
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0 12px 38px;
+      color: #f4f8ff;
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: -.8px;
+    }
+
+    .marca-icone {
+      display: grid;
+      place-items: center;
+      width: 39px;
+      height: 39px;
+      border-radius: 12px;
+      background: var(--verde);
+      color: #08291f;
+      font-size: 23px;
+    }
+
+    .menu-titulo {
+      margin: 0 14px 12px;
+      color: #71839d;
+      font-size: 10px;
+      letter-spacing: 1.6px;
+      font-weight: 700;
+    }
+
+    nav { display: grid; gap: 7px; }
+
+    .nav-botao {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      padding: 13px 15px;
+      color: #8fa2bb;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      text-decoration: none;
+    }
+
+    .nav-botao:hover { background: #152135; }
+    .nav-icone { width: 20px; text-align: center; font-size: 18px; }
+
+    .nav-botao[aria-pressed="true"] {
+      color: #7bf1ce;
+      border-color: #54edc025;
+      background: #54edc00d;
+    }
+
+    .menu-nota {
+      margin-top: auto;
+      padding: 18px 14px;
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      background: #111d2e;
+    }
+
+    .menu-nota strong {
+      display: block;
+      color: #cbd9eb;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .menu-nota p {
+      margin: 0;
+      color: #7e92ad;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .sair {
+      margin-top: 16px;
+      background: transparent;
+      color: #a5b5cb;
+      border-color: var(--borda);
+    }
+
+    .conteudo { min-width: 0; }
+
+    .topbar {
+      min-height: 82px;
+      padding: 20px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--borda);
+      background: #0c1421;
+    }
+
+    .caminho { font-size: 12px; color: #7d90aa; }
+    .caminho strong { color: #cfdaeb; font-weight: 500; }
+    .ambiente { font-size: 11px; color: #9acbb8; }
+
+    main { max-width: 1500px; margin: auto; padding: 32px 36px; }
+
+    .titulo-pagina {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .sobretitulo {
+      margin: 0 0 8px;
+      font-size: 10px;
+      color: #73dcb9;
+      letter-spacing: 1.6px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      color: #f3f7fd;
+      font-size: clamp(25px, 3vw, 32px);
+      font-weight: 650;
+      letter-spacing: -1px;
+    }
+
+    .descricao {
+      margin: 9px 0 0;
+      color: #91a1b8;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .data { color: #95a7bf; font-size: 12px; white-space: nowrap; }
+
+    .resumos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .cartao {
+      border: 1px solid var(--borda);
+      border-radius: 15px;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at top right, #54edc012, transparent 75%),
+        var(--painel);
+    }
+
+    .cartao:nth-child(2) {
+      background:
+        radial-gradient(ellipse at top right, #6699ff18, transparent 75%),
+        var(--painel);
+    }
+
+    .cartao:nth-child(3) {
+      background:
+        radial-gradient(ellipse at top right, #b48aff18, transparent 75%),
+        var(--painel);
+    }
+
+    .cartao span { color: #9fb0c7; font-size: 12px; }
+
+    .cartao strong {
+      display: block;
+      margin: 14px 0 8px;
+      color: #f1f6fd;
+      font-size: 36px;
+      font-weight: 600;
+    }
+
+    .cartao small { color: #7488a3; font-size: 11px; }
+
+    .painel {
+      border: 1px solid var(--borda);
+      border-radius: 15px;
+      background: var(--painel);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .painel-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 23px 24px;
+      border-bottom: 1px solid #223047;
+    }
+
+    h2 { margin: 0; color: #eaf0fa; font-size: 16px; font-weight: 600; }
+
+    .subtexto {
+      margin: 6px 0 0;
+      color: #8195af;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+    .secundario { background: #172338; border-color: #304059; color: #b7c7dc; }
+    .perigo { background: #361d2a; border-color: #623044; color: #f9a5b6; }
+
+    .filtros {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 16px;
+      padding: 22px 24px 8px;
+    }
+
+    .resultado { margin: 16px 24px; color: #7f93ad; font-size: 11px; line-height: 1.7; }
+    .rolagem { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+
+    th {
+      background: #0f1929;
+      color: #7e92ae;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    th, td {
+      padding: 15px 20px;
+      border-bottom: 1px solid #202d42;
+      vertical-align: middle;
+    }
+
+    td { font-size: 12px; color: #b5c4d8; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #152135; }
+
+    .produto-info { display: flex; align-items: center; gap: 11px; min-width: 180px; }
+
+    .produto-avatar {
+      width: 35px;
+      height: 35px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      border: 1px solid #54edc01a;
+      background: #54edc009;
+      color: #73e4bf;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .produto-nome { display: block; color: #dce6f4; font-weight: 600; }
+    .produto-codigo { display: block; color: #7186a1; font-size: 10px; margin-top: 4px; }
+
+    .categoria {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: 1px solid #34435c;
+      background: #1a263b;
+      color: #b2c3db;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .saldo { color: #e0ebf8; font-weight: 650; font-size: 14px; }
+    .acoes-tabela { display: flex; gap: 7px; }
+    .acoes-tabela button { padding: 7px 10px; font-size: 11px; }
+    .vazio { padding: 35px 20px; text-align: center; color: #8397b1; line-height: 1.8; }
+
+    .atalhos {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      padding: 22px 24px;
+    }
+
+    .atalho {
+      text-align: left;
+      background: #142237;
+      border-color: #2b3c55;
+      padding: 18px;
+      color: #dce6f4;
+    }
+
+    .atalho span {
+      display: block;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: #839bb7;
+    }
+
+    .form-conteudo { padding: 24px; }
+    .grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .total { grid-column: 1 / -1; }
+    .ajuda { margin: 8px 0 0; font-size: 11px; color: #7b8faa; line-height: 1.7; }
+
+    .rodape-form {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid #253249;
+    }
+
+    .rodape-form p { margin: 0; color: #7f93ad; font-size: 11px; }
+
+    #mensagem {
+      margin-bottom: 22px;
+      padding: 13px 16px;
+      border: 1px solid #276453;
+      border-radius: 10px;
+      background: #10352b;
+      color: #9bf1d4;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    #mensagem.erro { border-color: #6b3145; background: #351d29; color: #ffb7c6; }
+
+    .tipo-acao {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: #203047;
+      color: #bbcadf;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .tipo-entrada, .tipo-cadastro { background: #163b32; color: #8de9c6; }
+    .tipo-saida, .tipo-exclusao { background: #3b2230; color: #f3acc0; }
+    .tipo-edicao { background: #2e2846; color: #ccb5fa; }
+    .detalhes { min-width: 220px; white-space: pre-line; line-height: 1.8; }
+    .historico-data { display: block; white-space: nowrap; color: #cfdaeb; }
+    .historico-usuario { display: block; margin-top: 5px; color: #7990ac; font-size: 11px; }
+
+    dialog {
+      width: min(650px, calc(100% - 32px));
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 0;
+      border: 1px solid #34445e;
+      border-radius: 18px;
+      background: #111b2b;
+      color: #dce5f2;
+      box-shadow: 0 30px 100px #00000088;
+    }
+
+    dialog::backdrop { background: #030815cc; backdrop-filter: blur(5px); }
+    .modal-topo { padding: 25px 26px 20px; border-bottom: 1px solid var(--borda); }
+    .modal-topo h2 { font-size: 21px; }
+    .modal-corpo { padding: 24px 26px; }
+    .acoes-modal { display: flex; justify-content: flex-end; gap: 9px; margin-top: 24px; }
+    .erro-form { color: #ffadc2; font-size: 12px; line-height: 1.7; }
+
+    .aviso-exclusao {
+      padding: 14px;
+      border: 1px solid #623044;
+      border-radius: 10px;
+      color: #d7aaba;
+      font-size: 12px;
+      line-height: 1.8;
+      margin: 0 0 20px;
+    }
+
+    .rodape-pagina {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #647b98;
+      font-size: 10px;
+      padding: 5px 2px 15px;
+    }
+
+    .pagina:not([hidden]) { animation: entrar .25s ease both; }
+    [hidden] { display: none !important; }
+
+    @keyframes entrar {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 195px minmax(0, 1fr); }
+      main { padding: 26px 22px; }
+      .topbar { padding: 20px 22px; }
+      .cartao { padding: 18px; }
+    }
+
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 18px;
+        border-right: 0;
+        border-bottom: 1px solid var(--borda);
+      }
+      .marca { margin: 0 0 20px; }
+      .menu-titulo, .menu-nota { display: none; }
+      nav { display: flex; flex-wrap: wrap; }
+      .nav-botao { width: auto; padding: 10px; font-size: 12px; }
+      .sair { position: absolute; right: 18px; top: 18px; margin: 0; }
+      .topbar { min-height: 60px; padding: 16px 20px; }
+      .data { display: none; }
+      .resumos { gap: 10px; }
+    }
+
+    @media (max-width: 560px) {
+      main { padding: 24px 14px; }
+      .resumos, .grade, .filtros, .atalhos { grid-template-columns: 1fr; }
+      .painel-topo { align-items: flex-start; flex-direction: column; padding: 20px; }
+      .filtros { padding: 20px 20px 8px; }
+      .form-conteudo { padding: 20px; }
+      .rodape-form { align-items: stretch; flex-direction: column; }
+      .rodape-pagina { flex-direction: column; }
+      .ambiente { font-size: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="marca">
+        <span class="marca-icone" aria-hidden="true">▣</span>
+        Estoque
+      </div>
+
+      <p class="menu-titulo">ÁREA DE GESTÃO</p>
+
+      <nav aria-label="Menu principal">
+        <button class="nav-botao" data-pagina="visao" type="button" aria-pressed="true">
+          <span class="nav-icone" aria-hidden="true">◫</span>
+          Visão geral
+        </button>
+
+        <button class="nav-botao" data-pagina="produtos" type="button" aria-pressed="false">
+          <span class="nav-icone" aria-hidden="true">▣</span>
+          Produtos
+        </button>
+
+        <button class="nav-botao" data-pagina="movimentacoes" type="button" aria-pressed="false">
+          <span class="nav-icone" aria-hidden="true">⇄</span>
+          Movimentações
+        </button>
+
+        <button class="nav-botao" data-pagina="historico" type="button" aria-pressed="false">
+          <span class="nav-icone" aria-hidden="true">◷</span>
+          Histórico
+        </button>
+
+        <a class="nav-botao" href="/relatorios">
+          <span class="nav-icone" aria-hidden="true">▤</span>
+          Relatórios
+        </a>
+      <a class="nav-botao" href="/conta">
+  <span class="nav-icone" aria-hidden="true">⚙</span>
+  Minha conta
+</a>
+</nav>
+
+      <div class="menu-nota">
+        <strong>Uma área para cada tarefa.</strong>
+        <p>Gerencie produtos, movimentações e relatórios.</p>
+      </div>
+
+      <button id="sair" class="sair" type="button">Sair da conta</button>
+    </aside>
+
+    <div class="conteudo">
+      <header class="topbar">
+        <div class="caminho">
+          Área de gestão &nbsp;/&nbsp;
+          <strong id="caminho-atual">Visão geral</strong>
+        </div>
+        <div class="ambiente">● Ambiente de demonstração</div>
+      </header>
+
+      <main>
+        <div class="titulo-pagina">
+          <div>
+            <p class="sobretitulo">CONTROLE DE ESTOQUE</p>
+            <h1 id="titulo-pagina" tabindex="-1">Tudo sob controle.</h1>
+            <p id="descricao-pagina" class="descricao">
+              Um resumo do estoque e das atividades recentes.
+            </p>
+          </div>
+          <time id="data-atual" class="data"></time>
+        </div>
+
+        <p id="mensagem" role="status" hidden></p>
+
+        <section id="pagina-visao" class="pagina" aria-label="Visão geral">
+          <div class="resumos">
+            <div class="cartao">
+              <span>Produtos cadastrados</span>
+              <strong id="total-produtos">—</strong>
+              <small>Produtos ativos no catálogo</small>
+            </div>
+
+            <div class="cartao">
+              <span>Unidades disponíveis</span>
+              <strong id="total-unidades">—</strong>
+              <small>Soma das quantidades em estoque</small>
+            </div>
+
+            <div class="cartao">
+              <span>Categorias</span>
+              <strong id="total-categorias">—</strong>
+              <small>Categorias dos produtos ativos</small>
+            </div>
+          </div>
+
+          <section class="painel">
+            <div class="painel-topo">
+              <div>
+                <h2>O que vamos fazer agora?</h2>
+                <p class="subtexto">Acesse rapidamente as principais funções.</p>
+              </div>
+            </div>
+
+            <div class="atalhos">
+              <button id="atalho-cadastrar" class="atalho" type="button">
+                + Cadastrar produto
+                <span>Adicione um item com preço e quantidade inicial.</span>
+              </button>
+
+              <button id="atalho-entrada" class="atalho" type="button">
+                ↗ Registrar entrada
+                <span>Registre as mercadorias recebidas.</span>
+              </button>
+
+              <button id="atalho-saida" class="atalho" type="button">
+                ↘ Registrar saída
+                <span>Registre vendas, retiradas ou perdas.</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="painel">
+            <div class="painel-topo">
+              <div>
+                <h2>Últimas movimentações</h2>
+                <p class="subtexto">
+                  Entradas e saídas encontradas nos últimos 100 registros.
+                </p>
+              </div>
+              <button id="atualizar-visao" class="secundario" type="button">
+                Atualizar
+              </button>
+            </div>
+
+            <p id="estado-recentes" class="resultado" role="status">Carregando...</p>
+
+            <div class="rolagem">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Quando e quem</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Saldo após</th>
+                  </tr>
+                </thead>
+                <tbody id="lista-recentes"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="pagina-produtos" class="pagina" aria-label="Produtos" hidden>
+          <div class="painel">
+            <div class="painel-topo">
+              <div>
+                <h2>Catálogo de produtos</h2>
+                <p class="subtexto">Consulte, cadastre, edite ou exclua produtos.</p>
+              </div>
+
+              <div class="botoes">
+                <button id="atualizar-produtos" class="secundario" type="button">
+                  Atualizar
+                </button>
+                <button id="novo-produto" type="button">+ Novo produto</button>
+              </div>
+            </div>
+
+            <div class="filtros">
+              <div>
+                <label for="busca-produto">Buscar no catálogo</label>
+                <input id="busca-produto" type="search" placeholder="Digite o nome...">
+              </div>
+              <div>
+                <label for="filtro-categoria">Categoria</label>
+                <select id="filtro-categoria">
+                  <option value="">Todas as categorias</option>
+                </select>
+              </div>
+            </div>
+
+            <p id="resultado-busca" class="resultado" role="status">Carregando...</p>
+
+            <div class="rolagem">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Preço</th>
+                    <th scope="col">Disponível</th>
+                    <th scope="col">Estoque mínimo</th>
+                    <th scope="col">Gerenciar</th>
+                  </tr>
+                </thead>
+                <tbody id="lista-produtos"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="pagina-movimentacoes" class="pagina" aria-label="Movimentações" hidden>
+          <div class="painel">
+            <div class="painel-topo">
+              <div>
+                <h2>Registrar movimentação</h2>
+                <p class="subtexto">
+                  Entradas aumentam o saldo. Saídas diminuem.
+                </p>
+              </div>
+            </div>
+
+            <form id="form-movimentacao" class="form-conteudo">
+              <div class="grade">
+                <div>
+                  <label for="produto">Produto</label>
+                  <select id="produto" required></select>
+                </div>
+                <div>
+                  <label for="tipo">Tipo de movimentação</label>
+                  <select id="tipo">
+                    <option value="entrada">Entrada de estoque</option>
+                    <option value="saida">Saída de estoque</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="quantidade">Quantidade</label>
+                  <input id="quantidade" type="number" min="1" step="1"
+                         placeholder="Ex.: 10" required>
+                </div>
+                <div class="total">
+                  <label for="motivo">Motivo</label>
+                  <input id="motivo" minlength="3" maxlength="500"
+                         placeholder="Ex.: recebimento de mercadoria" required>
+                </div>
+              </div>
+
+              <div class="rodape-form">
+                <p id="saldo-selecionado">Carregando produtos...</p>
+                <button id="registrar" type="submit" disabled>
+                  Registrar movimentação
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="pagina-historico" class="pagina" aria-label="Histórico" hidden>
+          <div class="painel">
+            <div class="painel-topo">
+              <div>
+                <h2>Histórico de atividades</h2>
+                <p class="subtexto">
+                  Últimos 100 registros. Horários no seu fuso local.
+                </p>
+              </div>
+              <button id="atualizar-historico" class="secundario" type="button">
+                Atualizar histórico
+              </button>
+            </div>
+
+            <p id="estado-historico" class="resultado" role="status">Carregando...</p>
+
+            <div class="rolagem">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Quando e quem</th>
+                    <th scope="col">Atividade</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Alterações</th>
+                    <th scope="col">Motivo</th>
+                  </tr>
+                </thead>
+                <tbody id="lista-historico"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <footer class="rodape-pagina">
+          <span>Estoque · Projeto de demonstração</span>
+          <span>Desenvolvido por Luiz Davi</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="modal-produto" aria-labelledby="titulo-produto">
+    <div class="modal-topo">
+      <p class="sobretitulo">CATÁLOGO</p>
+      <h2 id="titulo-produto">Novo produto</h2>
+      <p class="subtexto">Preencha as informações abaixo.</p>
+    </div>
+
+    <form id="form-produto" class="modal-corpo">
+      <input id="produto-id" type="hidden">
+
+      <div class="grade">
+        <div class="total">
+          <label for="produto-nome">Nome do produto</label>
+          <input id="produto-nome" maxlength="120" required>
+        </div>
+        <div>
+          <label for="produto-categoria">Categoria</label>
+          <input id="produto-categoria" maxlength="80">
+        </div>
+        <div>
+          <label for="produto-preco">Preço em R$</label>
+          <input id="produto-preco" type="number" min="0" step="0.01" required>
+        </div>
+        <div>
+          <label for="produto-minimo">Estoque mínimo</label>
+          <input id="produto-minimo" type="number" min="0" step="1" required>
+        </div>
+        <div id="campo-quantidade-inicial" class="total">
+          <label for="produto-inicial">Quantidade inicial disponível</label>
+          <input id="produto-inicial" type="number" min="0" step="1" value="0" required>
+          <p class="ajuda">Será registrada como entrada inicial no histórico.</p>
+        </div>
+        <div id="campo-motivo-edicao" class="total" hidden>
+          <label for="produto-motivo">Motivo da alteração</label>
+          <input id="produto-motivo" minlength="3" maxlength="500">
+        </div>
+      </div>
+
+      <p id="aviso-produto" class="ajuda"></p>
+      <p id="erro-produto" class="erro-form" role="alert"></p>
+
+      <div class="acoes-modal">
+        <button id="cancelar-produto" class="secundario" type="button">Cancelar</button>
+        <button id="salvar-produto" type="submit">Salvar produto</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="modal-exclusao" aria-labelledby="titulo-exclusao">
+    <div class="modal-topo">
+      <p class="sobretitulo">GERENCIAR PRODUTO</p>
+      <h2 id="titulo-exclusao">Excluir do estoque?</h2>
+      <p id="descricao-exclusao" class="subtexto"></p>
+    </div>
+
+    <form id="form-exclusao" class="modal-corpo">
+      <input id="excluir-id" type="hidden">
+
+      <p class="aviso-exclusao">
+        O produto sairá do catálogo e não poderá receber movimentações.
+        O histórico será preservado. Não será registrada uma saída de mercadoria.
+      </p>
+
+      <label for="excluir-motivo">Motivo da exclusão</label>
+      <input id="excluir-motivo" minlength="3" maxlength="500" required>
+      <p id="erro-exclusao" class="erro-form" role="alert"></p>
+
+      <div class="acoes-modal">
+        <button id="cancelar-exclusao" class="secundario" type="button">Manter produto</button>
+        <button id="confirmar-exclusao" class="perigo" type="submit">Confirmar exclusão</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const el = (id) => document.getElementById(id);
+
+    const moeda = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+    const numero = new Intl.NumberFormat("pt-BR");
+
+    let produtos = [];
+    let registros = [];
+    let movimentando = false;
+    let salvando = false;
+    let excluindo = false;
+    let filaProdutos = Promise.resolve();
+    let filaHistorico = Promise.resolve();
+
+    const paginas = {
+      visao: {
+        nome: "Visão geral",
+        titulo: "Tudo sob controle.",
+        descricao: "Um resumo do estoque e das atividades recentes."
+      },
+      produtos: {
+        nome: "Produtos",
+        titulo: "Seu catálogo, organizado.",
+        descricao: "Cadastre, consulte e gerencie os produtos."
+      },
+      movimentacoes: {
+        nome: "Movimentações",
+        titulo: "Registre cada movimento.",
+        descricao: "Controle as mercadorias que chegaram e as que saíram."
+      },
+      historico: {
+        nome: "Histórico",
+        titulo: "Cada mudança, registrada.",
+        descricao: "Consulte quem alterou, o que mudou e quando."
+      }
+    };
+
+    const agora = new Date();
+    el("data-atual").dateTime = agora.toISOString();
+    el("data-atual").textContent = agora.toLocaleDateString("pt-BR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+    function avisar(texto, erro = false) {
+      el("mensagem").hidden = false;
+      el("mensagem").textContent = texto;
+      el("mensagem").classList.toggle("erro", erro);
+    }
+
+    async function api(endereco, opcoes = {}) {
+      const resposta = await fetch(endereco, opcoes);
+
+      if (resposta.status === 401) {
+        window.location.replace("/login");
+        throw new Error("Faça login novamente.");
+      }
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(dados.mensagem || "Não foi possível concluir.");
+      }
+
+      return dados;
+    }
+
+    function celula(linha, texto) {
+      const td = document.createElement("td");
+      td.textContent = texto;
+      linha.appendChild(td);
+      return td;
+    }
+
+    function linhaVazia(tabela, colunas, texto) {
+      const linha = document.createElement("tr");
+      const td = celula(linha, texto);
+      td.colSpan = colunas;
+      td.className = "vazio";
+      tabela.appendChild(linha);
+    }
+
+    function normalizar(texto) {
+      return String(texto)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    // NAVEGAÇÃO
+
+    function paginaAtual() {
+      const chave = window.location.hash.slice(1);
+      return Object.hasOwn(paginas, chave) ? chave : "visao";
+    }
+
+    function irPara(chave) {
+      if (!Object.hasOwn(paginas, chave)) return;
+
+      if (window.location.hash === `#${chave}`) {
+        mostrarPagina();
+      } else {
+        window.location.hash = chave;
+      }
+    }
+
+    function mostrarPagina(focar = true) {
+      const chave = paginaAtual();
+      const dados = paginas[chave];
+
+      for (const nome of Object.keys(paginas)) {
+        el(`pagina-${nome}`).hidden = nome !== chave;
+      }
+
+      document.querySelectorAll("[data-pagina]").forEach((botao) => {
+        botao.setAttribute(
+          "aria-pressed",
+          String(botao.dataset.pagina === chave)
+        );
+      });
+
+      el("caminho-atual").textContent = dados.nome;
+      el("titulo-pagina").textContent = dados.titulo;
+      el("descricao-pagina").textContent = dados.descricao;
+      document.title = `${dados.nome} | Estoque`;
+
+      if (focar) {
+        el("titulo-pagina").focus({ preventScroll: true });
+      }
+
+      if (chave === "visao" || chave === "historico") {
+        carregarHistorico().catch(() => {});
+      }
+    }
+
+    document.querySelectorAll("[data-pagina]").forEach((botao) => {
+      botao.addEventListener("click", () => irPara(botao.dataset.pagina));
+    });
+
+    window.addEventListener("hashchange", () => mostrarPagina());
+
+    // PRODUTOS
+
+    function atualizarSaldoSelecionado() {
+      const produto = produtos.find(
+        (item) => item.id === Number(el("produto").value)
+      );
+
+      el("saldo-selecionado").textContent = produto
+        ? `Saldo atual: ${numero.format(produto.quantidade)} unidades de ${produto.nome}.`
+        : "Cadastre um produto na aba Produtos para começar.";
+    }
+
+    function preencherCategorias() {
+      const seletor = el("filtro-categoria");
+      const selecionada = seletor.value;
+      const categorias = new Map();
+
+      for (const produto of produtos) {
+        const nome = produto.categoria.trim();
+        const chave = normalizar(nome);
+
+        if (nome && !categorias.has(chave)) {
+          categorias.set(chave, nome);
+        }
+      }
+
+      seletor.replaceChildren();
+
+      const todas = document.createElement("option");
+      todas.value = "";
+      todas.textContent = "Todas as categorias";
+      seletor.appendChild(todas);
+
+      const ordenadas = [...categorias.entries()].sort(
+        (a, b) => a[1].localeCompare(b[1], "pt-BR")
+      );
+
+      for (const [chave, nome] of ordenadas) {
+        const opcao = document.createElement("option");
+        opcao.value = chave;
+        opcao.textContent = nome;
+        seletor.appendChild(opcao);
+      }
+
+      if (categorias.has(selecionada)) {
+        seletor.value = selecionada;
+      }
+
+      el("total-categorias").textContent = numero.format(categorias.size);
+    }
+
+    function renderizarProdutos() {
+      const busca = normalizar(el("busca-produto").value);
+      const categoria = el("filtro-categoria").value;
+
+      const filtrados = produtos.filter((produto) =>
+        normalizar(produto.nome).includes(busca) &&
+        (!categoria || normalizar(produto.categoria) === categoria)
+      );
+
+      const tabela = el("lista-produtos");
+      tabela.replaceChildren();
+
+      for (const produto of filtrados) {
+        const linha = document.createElement("tr");
+        const info = document.createElement("div");
+        info.className = "produto-info";
+
+        const avatar = document.createElement("span");
+        avatar.className = "produto-avatar";
+        avatar.textContent = produto.nome.trim().slice(0, 1).toUpperCase();
+        avatar.setAttribute("aria-hidden", "true");
+
+        const textos = document.createElement("div");
+        const nome = document.createElement("span");
+        nome.className = "produto-nome";
+        nome.textContent = produto.nome;
+
+        const codigo = document.createElement("span");
+        codigo.className = "produto-codigo";
+        codigo.textContent = `#${String(produto.id).padStart(4, "0")}`;
+
+        textos.append(nome, codigo);
+        info.append(avatar, textos);
+        celula(linha, "").appendChild(info);
+
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "categoria";
+        etiqueta.textContent = produto.categoria || "Sem categoria";
+        celula(linha, "").appendChild(etiqueta);
+
+        celula(linha, moeda.format(produto.preco_centavos / 100));
+        celula(linha, numero.format(produto.quantidade)).className = "saldo";
+        celula(linha, numero.format(produto.estoque_minimo));
+
+        const grupo = document.createElement("div");
+        grupo.className = "acoes-tabela";
+
+        const editar = document.createElement("button");
+        editar.type = "button";
+        editar.className = "secundario";
+        editar.textContent = "Editar";
+        editar.setAttribute("aria-label", `Editar ${produto.nome}`);
+        editar.addEventListener("click", () => abrirProduto(produto));
+
+        const excluir = document.createElement("button");
+        excluir.type = "button";
+        excluir.className = "perigo";
+        excluir.textContent = "Excluir";
+        excluir.setAttribute("aria-label", `Excluir ${produto.nome}`);
+        excluir.addEventListener("click", () => abrirExclusao(produto));
+
+        grupo.append(editar, excluir);
+        celula(linha, "").appendChild(grupo);
+        tabela.appendChild(linha);
+      }
+
+      if (filtrados.length === 0) {
+        linhaVazia(
+          tabela,
+          6,
+          produtos.length === 0
+            ? "Seu catálogo está vazio. Cadastre o primeiro produto."
+            : "Nenhum produto encontrado."
+        );
+      }
+
+      el("resultado-busca").textContent =
+        `${filtrados.length} de ${produtos.length} produtos exibidos`;
+    }
+
+    function carregarProdutos() {
+      const tarefa = filaProdutos.then(async () => {
+        el("atualizar-produtos").disabled = true;
+
+        try {
+          produtos = await api("/produtos");
+          el("total-produtos").textContent = numero.format(produtos.length);
+          el("total-unidades").textContent = numero.format(
+            produtos.reduce((total, produto) => total + produto.quantidade, 0)
+          );
+
+          preencherCategorias();
+          renderizarProdutos();
+
+          const seletor = el("produto");
+          const selecionado = seletor.value;
+          seletor.replaceChildren();
+
+          for (const produto of produtos) {
+            const opcao = document.createElement("option");
+            opcao.value = produto.id;
+            opcao.textContent = produto.nome;
+            seletor.appendChild(opcao);
+          }
+
+          if ([...seletor.options].some(
+            (opcao) => opcao.value === selecionado
+          )) {
+            seletor.value = selecionado;
+          }
+
+          atualizarSaldoSelecionado();
+        } finally {
+          el("atualizar-produtos").disabled = false;
+          el("registrar").disabled = movimentando || produtos.length === 0;
+        }
+      });
+
+      filaProdutos = tarefa.catch(() => {});
+      return tarefa;
+    }
+
+    // HISTÓRICO
+
+    function foiExclusao(registro) {
+      return registro.antes &&
+        Number(registro.antes.arquivado || 0) === 0 &&
+        Number(registro.depois?.arquivado) === 1;
+    }
+
+    function adicionarDataUsuario(linha, registro) {
+      const td = celula(linha, "");
+      const data = document.createElement("span");
+      data.className = "historico-data";
+      data.textContent = new Date(registro.data).toLocaleString("pt-BR");
+
+      const usuario = document.createElement("span");
+      usuario.className = "historico-usuario";
+      usuario.textContent = registro.usuario;
+      td.append(data, usuario);
+    }
+
+    function adicionarTipo(linha, tipo) {
+      const nomes = {
+        cadastro: "Cadastro",
+        edicao: "Edição",
+        entrada: "Entrada",
+        saida: "Saída",
+        ajuste: "Ajuste",
+        exclusao: "Exclusão"
+      };
+
+      const etiqueta = document.createElement("span");
+      const conhecido = Object.hasOwn(nomes, tipo) ? tipo : "ajuste";
+      etiqueta.className = `tipo-acao tipo-${conhecido}`;
+      etiqueta.textContent = nomes[tipo] || tipo;
+      celula(linha, "").appendChild(etiqueta);
+    }
+
+    function descreverMudancas(registro) {
+      const antes = registro.antes;
+      const depois = registro.depois;
+
+      if (!antes) {
+        return `Produto cadastrado com ${depois.quantidade} unidades.`;
+      }
+
+      if (foiExclusao(registro)) {
+        return `Removido do catálogo.\nSaldo no arquivamento: ${antes.quantidade} unidades.\nHistórico preservado.`;
+      }
+
+      const campos = {
+        nome: "Nome",
+        categoria: "Categoria",
+        preco_centavos: "Preço",
+        quantidade: "Quantidade",
+        estoque_minimo: "Estoque mínimo"
+      };
+
+      const mudancas = [];
+
+      for (const [campo, titulo] of Object.entries(campos)) {
+        if (antes[campo] !== depois[campo]) {
+          const formatar = (valor) => campo === "preco_centavos"
+            ? moeda.format(valor / 100)
+            : String(valor ?? "");
+
+          mudancas.push(
+            `${titulo}: ${formatar(antes[campo])} → ${formatar(depois[campo])}`
+          );
+        }
+      }
+
+      return mudancas.join("\n") || "Sem alteração nos campos exibidos.";
+    }
+
+    function renderizarHistorico() {
+      const tabela = el("lista-historico");
+      tabela.replaceChildren();
+
+      for (const registro of registros) {
+        const linha = document.createElement("tr");
+        adicionarDataUsuario(linha, registro);
+        adicionarTipo(linha, foiExclusao(registro) ? "exclusao" : registro.acao);
+
+        celula(
+          linha,
+          registro.depois?.nome ||
+          registro.antes?.nome ||
+          `Produto ${registro.produtoId}`
+        );
+
+        celula(linha, descreverMudancas(registro)).className = "detalhes";
+        celula(linha, registro.motivo);
+        tabela.appendChild(linha);
+      }
+
+      if (registros.length === 0) {
+        linhaVazia(tabela, 5, "Nenhuma atividade registrada.");
+      }
+
+      el("estado-historico").textContent =
+        `${registros.length} atividades exibidas`;
+    }
+
+    function renderizarRecentes() {
+      const recentes = registros.filter(
+        (registro) => ["entrada", "saida"].includes(registro.acao)
+      ).slice(0, 5);
+
+      const tabela = el("lista-recentes");
+      tabela.replaceChildren();
+
+      for (const registro of recentes) {
+        const linha = document.createElement("tr");
+        adicionarDataUsuario(linha, registro);
+        adicionarTipo(linha, registro.acao);
+        celula(linha, registro.depois.nome);
+
+        const quantidade = Math.abs(
+          registro.depois.quantidade - registro.antes.quantidade
+        );
+
+        celula(
+          linha,
+          `${registro.acao === "entrada" ? "+" : "−"}${numero.format(quantidade)}`
+        );
+
+        celula(linha, numero.format(registro.depois.quantidade));
+        tabela.appendChild(linha);
+      }
+
+      if (recentes.length === 0) {
+        linhaVazia(
+          tabela,
+          5,
+          "Nenhuma movimentação encontrada nos últimos 100 registros."
+        );
+      }
+
+      el("estado-recentes").textContent =
+        `${recentes.length} movimentações recentes exibidas`;
+    }
+
+    function carregarHistorico() {
+      const tarefa = filaHistorico.then(async () => {
+        el("atualizar-historico").disabled = true;
+        el("estado-historico").textContent = "Carregando...";
+        el("estado-recentes").textContent = "Atualizando...";
+
+        try {
+          registros = await api("/api/historico");
+          renderizarHistorico();
+          renderizarRecentes();
+        } catch (erro) {
+          el("estado-historico").textContent = erro.message;
+          el("estado-recentes").textContent = erro.message;
+          throw erro;
+        } finally {
+          el("atualizar-historico").disabled = false;
+        }
+      });
+
+      filaHistorico = tarefa.catch(() => {});
+      return tarefa;
+    }
+
+    async function atualizarDepoisDeSalvar(mensagem) {
+      avisar(mensagem);
+
+      const resultados = await Promise.allSettled([
+        carregarProdutos(),
+        carregarHistorico()
+      ]);
+
+      if (resultados.some((resultado) => resultado.status === "rejected")) {
+        avisar(`${mensagem} Parte do painel não atualizou. Use Atualizar.`, true);
+      }
+    }
+
+    // CADASTRO E EDIÇÃO
+
+    function abrirProduto(produto = null) {
+      el("form-produto").reset();
+      el("produto-id").value = produto ? produto.id : "";
+      el("titulo-produto").textContent =
+        produto ? "Editar produto" : "Cadastrar novo produto";
+
+      el("produto-nome").value = produto ? produto.nome : "";
+      el("produto-categoria").value = produto ? produto.categoria : "";
+      el("produto-preco").value = produto
+        ? (produto.preco_centavos / 100).toFixed(2)
+        : "";
+      el("produto-minimo").value = produto ? produto.estoque_minimo : 0;
+
+      el("campo-quantidade-inicial").hidden = Boolean(produto);
+      el("produto-inicial").disabled = Boolean(produto);
+      el("produto-inicial").value = 0;
+
+      el("campo-motivo-edicao").hidden = !produto;
+      el("produto-motivo").required = Boolean(produto);
+      el("produto-motivo").disabled = !produto;
+
+      el("erro-produto").textContent = "";
+      el("aviso-produto").textContent = produto
+        ? "Altere o saldo pela aba Movimentações."
+        : "Estoque mínimo não altera a quantidade disponível.";
+
+      el("modal-produto").showModal();
+    }
+
+    el("novo-produto").addEventListener("click", () => abrirProduto());
+
+    el("cancelar-produto").addEventListener("click", () => {
+      if (!salvando) el("modal-produto").close();
+    });
+
+    el("modal-produto").addEventListener("cancel", (evento) => {
+      if (salvando) evento.preventDefault();
+    });
+
+    el("form-produto").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (salvando) return;
+
+      salvando = true;
+      el("salvar-produto").disabled = true;
+      el("salvar-produto").textContent = "Salvando...";
+      el("cancelar-produto").disabled = true;
+      el("erro-produto").textContent = "";
+
+      const id = el("produto-id").value;
+      const corpo = {
+        nome: el("produto-nome").value.trim(),
+        categoria: el("produto-categoria").value.trim(),
+        preco_centavos: Math.round(Number(el("produto-preco").value) * 100),
+        estoque_minimo: Number(el("produto-minimo").value)
+      };
+
+      if (id) {
+        corpo.motivo = el("produto-motivo").value.trim();
+      } else {
+        corpo.quantidade_inicial = Number(el("produto-inicial").value);
+      }
+
+      try {
+        const dados = await api(
+          id ? `/api/produtos/${id}` : "/api/produtos",
+          {
+            method: id ? "PATCH" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(corpo)
+          }
+        );
+
+        el("modal-produto").close();
+
+        if (!id) {
+          el("busca-produto").value = "";
+          el("filtro-categoria").value = "";
+        }
+
+        await atualizarDepoisDeSalvar(dados.mensagem);
+
+        if (!id && produtos.some((produto) => produto.id === dados.produto.id)) {
+          el("produto").value = String(dados.produto.id);
+          atualizarSaldoSelecionado();
+        }
+      } catch (erro) {
+        el("erro-produto").textContent = erro.message;
+      } finally {
+        salvando = false;
+        el("salvar-produto").disabled = false;
+        el("salvar-produto").textContent = "Salvar produto";
+        el("cancelar-produto").disabled = false;
+      }
+    });
+
+    // EXCLUSÃO
+
+    function abrirExclusao(produto) {
+      el("form-exclusao").reset();
+      el("excluir-id").value = produto.id;
+      el("erro-exclusao").textContent = "";
+      el("descricao-exclusao").textContent =
+        `${produto.nome} · Saldo atual: ${numero.format(produto.quantidade)} unidades.`;
+
+      el("modal-exclusao").showModal();
+    }
+
+    el("cancelar-exclusao").addEventListener("click", () => {
+      if (!excluindo) el("modal-exclusao").close();
+    });
+
+    el("modal-exclusao").addEventListener("cancel", (evento) => {
+      if (excluindo) evento.preventDefault();
+    });
+
+    el("form-exclusao").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (excluindo) return;
+
+      excluindo = true;
+      el("confirmar-exclusao").disabled = true;
+      el("confirmar-exclusao").textContent = "Excluindo...";
+      el("cancelar-exclusao").disabled = true;
+      el("erro-exclusao").textContent = "";
+
+      try {
+        const dados = await api(`/api/produtos/${el("excluir-id").value}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            motivo: el("excluir-motivo").value.trim()
+          })
+        });
+
+        el("modal-exclusao").close();
+        await atualizarDepoisDeSalvar(dados.mensagem);
+      } catch (erro) {
+        el("erro-exclusao").textContent = erro.message;
+      } finally {
+        excluindo = false;
+        el("confirmar-exclusao").disabled = false;
+        el("confirmar-exclusao").textContent = "Confirmar exclusão";
+        el("cancelar-exclusao").disabled = false;
+      }
+    });
+
+    // MOVIMENTAÇÕES
+
+    el("produto").addEventListener("change", atualizarSaldoSelecionado);
+
+    el("form-movimentacao").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      if (movimentando) return;
+
+      movimentando = true;
+      el("registrar").disabled = true;
+      el("registrar").textContent = "Registrando...";
+
+      try {
+        const dados = await api("/api/movimentacoes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            produtoId: Number(el("produto").value),
+            tipo: el("tipo").value,
+            quantidade: Number(el("quantidade").value),
+            motivo: el("motivo").value.trim()
+          })
+        });
+
+        el("quantidade").value = "";
+        el("motivo").value = "";
+        await atualizarDepoisDeSalvar(dados.mensagem);
+      } catch (erro) {
+        avisar(erro.message, true);
+      } finally {
+        movimentando = false;
+        el("registrar").disabled = produtos.length === 0;
+        el("registrar").textContent = "Registrar movimentação";
+      }
+    });
+
+    // ATALHOS
+
+    el("atalho-cadastrar").addEventListener("click", () => {
+      irPara("produtos");
+      abrirProduto();
+    });
+
+    el("atalho-entrada").addEventListener("click", () => {
+      el("tipo").value = "entrada";
+      irPara("movimentacoes");
+    });
+
+    el("atalho-saida").addEventListener("click", () => {
+      el("tipo").value = "saida";
+      irPara("movimentacoes");
+    });
+
+    el("atualizar-produtos").addEventListener("click", async () => {
+      try {
+        await carregarProdutos();
+        avisar("Produtos atualizados.");
+      } catch (erro) {
+        avisar(erro.message, true);
+      }
+    });
+
+    el("atualizar-historico").addEventListener("click", () => {
+      carregarHistorico().catch((erro) => avisar(erro.message, true));
+    });
+
+    el("atualizar-visao").addEventListener("click", async () => {
+      el("atualizar-visao").disabled = true;
+
+      try {
+        const resultados = await Promise.allSettled([
+          carregarProdutos(),
+          carregarHistorico()
+        ]);
+
+        const falhou = resultados.some(
+          (resultado) => resultado.status === "rejected"
+        );
+
+        avisar(
+          falhou
+            ? "Não foi possível atualizar todos os dados."
+            : "Visão geral atualizada.",
+          falhou
+        );
+      } finally {
+        el("atualizar-visao").disabled = false;
+      }
+    });
+
+    el("busca-produto").addEventListener("input", renderizarProdutos);
+    el("filtro-categoria").addEventListener("change", renderizarProdutos);
+
+    el("sair").addEventListener("click", async () => {
+      el("sair").disabled = true;
+
+      try {
+        await api("/api/logout", { method: "POST" });
+        window.location.replace("/login");
+      } catch (erro) {
+        avisar(erro.message, true);
+        el("sair").disabled = false;
+      }
+    });
+
+    // INICIALIZAÇÃO
+
+    mostrarPagina(false);
+
+    carregarProdutos().catch((erro) => {
+      el("resultado-busca").textContent =
+        "Não foi possível carregar os produtos.";
+      avisar(erro.message, true);
+    });
+
+    if (!["visao", "historico"].includes(paginaAtual())) {
+      carregarHistorico().catch(() => {});
+    }
+  </script>
+</body>
+</html>
